@@ -1,9 +1,10 @@
 package stackerr
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
-	"runtime"
+	"runtime/debug"
 	"strings"
 )
 
@@ -20,20 +21,9 @@ type errorStack struct {
 }
 
 func New(msg string) error {
-	// Copy from debug.Stack()
-	stack := make([]byte, 1024)
-	for {
-		n := runtime.Stack(stack, false)
-		if n < len(stack) {
-			stack = stack[:n]
-			break
-		}
-		stack = make([]byte, 2*len(stack))
-	}
-
 	return &errorStack{
 		msg:   msg,
-		stack: stack,
+		stack: trimStack(debug.Stack(), 2),
 	}
 }
 
@@ -48,18 +38,7 @@ func Errorf(format string, args ...any) error {
 	}
 
 	if !errors.As(e, &errStack) {
-		// Copy from debug.Stack()
-		buf := make([]byte, 1024)
-		for {
-			n := runtime.Stack(buf, false)
-			if n < len(buf) {
-				buf = buf[:n]
-				break
-			}
-			buf = make([]byte, 2*len(buf))
-		}
-
-		err.stack = buf
+		err.stack = trimStack(debug.Stack(), 2)
 	}
 
 	return err
@@ -86,4 +65,29 @@ func (e *errorStack) Error() string {
 
 func (e *errorStack) Unwrap() error {
 	return e.err
+}
+
+func trimStack(buf []byte, skip int) []byte {
+	if skip <= 0 {
+		return buf
+	}
+	skip = skip * 2
+
+	first := bytes.IndexByte(buf, '\n')
+	if first < 0 || len(buf) < first+1 {
+		return buf
+	}
+
+	bufs := bytes.SplitN(buf[first+1:], []byte{'\n'}, skip+1)
+	if len(bufs) <= skip {
+		return buf[:first]
+	}
+
+	second := bufs[skip]
+
+	stack := make([]byte, 0, first+1+len(second))
+	stack = append(stack, buf[:first+1]...)
+	stack = append(stack, second...)
+	fmt.Printf("stack: %s\n", string(stack))
+	return stack
 }

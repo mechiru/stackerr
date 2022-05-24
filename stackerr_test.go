@@ -1,4 +1,4 @@
-package stackerr_test
+package stackerr
 
 import (
 	"errors"
@@ -7,20 +7,18 @@ import (
 
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"gotest.tools/v3/assert"
-
-	"github.com/mechiru/stackerr"
 )
 
 func TestNew(t *testing.T) {
-	t.Log(stackerr.New("error"))
+	t.Log(New("error"))
 }
 
 func TestErrorf(t *testing.T) {
-	e1 := stackerr.Errorf("error1")
-	e2 := stackerr.Errorf("error2: %w", e1)
-	e3 := stackerr.Errorf("error3: %w", e2)
+	e1 := Errorf("error1")
+	e2 := Errorf("error2: %w", e1)
+	e3 := Errorf("error3: %w", e2)
 	e4 := errors.New("error4")
-	e5 := stackerr.Errorf("error5: %w", e4)
+	e5 := Errorf("error5: %w", e4)
 
 	assert.ErrorIs(t, e2, e1)
 	assert.ErrorIs(t, e3, e1)
@@ -51,4 +49,36 @@ func countStackTraceBlock(err error) int {
 		return 0
 	}
 	return len(splited) - 1
+}
+
+func TestTrimStack(t *testing.T) {
+	type in struct {
+		buf  string
+		skip int
+	}
+
+	for _, c := range []struct {
+		in   *in
+		want string
+	}{
+		{
+			&in{"head\nbody", 0},
+			"head\nbody",
+		},
+		{
+			&in{"head\nfunc\npath", 1},
+			"head",
+		},
+		{
+			&in{"head\nfunc\npath\nfunc2\npath2", 1},
+			"head\nfunc2\npath2",
+		},
+		{
+			&in{"head\nfunc\npath\nfunc2\npath2\nfunc3\npath3", 2},
+			"head\nfunc3\npath3",
+		},
+	} {
+		got := string(trimStack([]byte(c.in.buf), c.in.skip))
+		assert.DeepEqual(t, c.want, got)
+	}
 }
