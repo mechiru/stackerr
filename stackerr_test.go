@@ -66,6 +66,10 @@ func TestTrimStack(t *testing.T) {
 			"head\nbody",
 		},
 		{
+			&in{"head\n", 1},
+			"head",
+		},
+		{
 			&in{"head\nfunc\npath", 1},
 			"head",
 		},

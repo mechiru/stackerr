@@ -71,23 +71,28 @@ func trimStack(buf []byte, skip int) []byte {
 	if skip <= 0 {
 		return buf
 	}
-	skip = skip * 2
 
 	first := bytes.IndexByte(buf, '\n')
-	if first < 0 || len(buf) < first+1 {
+	if first < 0 {
 		return buf
 	}
-
-	bufs := bytes.SplitN(buf[first+1:], []byte{'\n'}, skip+1)
-	if len(bufs) <= skip {
+	if len(buf)-1 == first {
 		return buf[:first]
 	}
 
-	second := bufs[skip]
+	n := first + 1
+	for i, skip := 0, skip*2; i < skip; i++ {
+		idx := bytes.IndexByte(buf[n:], '\n')
+		if idx < 0 {
+			return buf[:first]
+		}
+		n += idx + 1
+	}
+
+	second := buf[n:]
 
 	stack := make([]byte, 0, first+1+len(second))
 	stack = append(stack, buf[:first+1]...)
 	stack = append(stack, second...)
-	fmt.Printf("stack: %s\n", string(stack))
 	return stack
 }
