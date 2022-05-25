@@ -46,20 +46,14 @@ func Errorf(format string, args ...any) error {
 }
 
 func (e *errorStack) Error() string {
-	var (
-		sb  strings.Builder
-		msg string
-	)
-
+	var msg string
 	switch {
 	case e.msg != "":
 		msg = e.msg
 	case e.err != nil:
 		msg = e.err.Error()
 	}
-	sb.WriteString(strings.TrimRight(msg, "\n"))
-
-	return sb.String()
+	return strings.TrimRight(msg, "\n")
 }
 
 func (e *errorStack) Unwrap() error {
