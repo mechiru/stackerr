@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"runtime/debug"
 	"strings"
 )
@@ -58,16 +59,50 @@ func (e *errorStack) Error() string {
 	}
 	sb.WriteString(strings.TrimRight(msg, "\n"))
 
-	if len(e.stack) > 0 {
-		sb.WriteByte('\n')
-		sb.Write(e.stack)
-	}
-
 	return sb.String()
 }
 
 func (e *errorStack) Unwrap() error {
 	return e.err
+}
+
+func (e *errorStack) Format(s fmt.State, v rune) {
+	switch v {
+	case 'v':
+		if s.Flag('+') {
+			io.WriteString(s, e.Error())
+
+			var (
+				stack = e.stack
+				err   = e.Unwrap()
+			)
+			for {
+				if len(stack) > 0 {
+					s.Write([]byte{'\n'})
+					s.Write(stack)
+					return
+				}
+
+				if err == nil {
+					return
+				}
+
+				if e, ok := err.(*errorStack); ok {
+					stack = e.stack
+					err = e.Unwrap()
+				} else if e, ok := err.(interface{ Unwrap() error }); ok {
+					err = e.Unwrap()
+				} else {
+					return
+				}
+			}
+		}
+		fallthrough
+	case 's':
+		io.WriteString(s, e.Error())
+	case 'q':
+		fmt.Fprintf(s, "%q", e.Error())
+	}
 }
 
 func trimStack(buf []byte, skip int) []byte {

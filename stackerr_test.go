@@ -2,6 +2,7 @@ package stackerr
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -10,7 +11,10 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	t.Log(New("error"))
+	err := New("error")
+	assert.Equal(t, err.Error(), "error")
+	t.Logf("%%v: %v", err)
+	t.Logf("%%+v: %+v", err)
 }
 
 func TestErrorf(t *testing.T) {
@@ -35,15 +39,15 @@ func TestErrorf(t *testing.T) {
 	assert.Equal(t, countStackTraceBlock(e4), 0)
 	assert.Equal(t, countStackTraceBlock(e5), 1)
 
-	t.Log(e1)
-	t.Log(e2)
-	t.Log(e3)
-	t.Log(e4)
-	t.Log(e5)
+	t.Logf("%+v", e1)
+	t.Logf("%+v", e2)
+	t.Logf("%+v", e3)
+	t.Logf("%+v", e4)
+	t.Logf("%+v", e5)
 }
 
 func countStackTraceBlock(err error) int {
-	s := err.Error()
+	s := fmt.Sprintf("%+v", err)
 	splited := strings.Split(s, "goroutine")
 	if len(splited) == 0 {
 		return 0
