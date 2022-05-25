@@ -37,7 +37,7 @@ func Errorf(format string, args ...any) error {
 		err.err = e.Unwrap()
 	}
 
-	if !errors.As(e, &errStack) {
+	if !errors.As(err.err, &errStack) {
 		err.stack = trimStack(debug.Stack(), 2)
 	}
 
