@@ -45,19 +45,25 @@ func Errorf(format string, args ...any) error {
 }
 
 func (e *errorStack) Error() string {
-	var sb strings.Builder
+	var (
+		sb  strings.Builder
+		msg string
+	)
 
 	switch {
 	case e.msg != "":
-		sb.WriteString(e.msg)
+		msg = e.msg
 	case e.err != nil:
-		sb.WriteString(e.err.Error())
+		msg = e.err.Error()
 	}
+	sb.WriteString(msg)
 
 	if len(e.stack) > 0 {
-		sb.WriteString("\n------- start stack trace -------\n")
+		if msg[len(msg)-1] != '\n' {
+			sb.WriteByte('\n')
+		}
+		sb.WriteString("------- stack trace -------\n")
 		sb.Write(e.stack)
-		sb.WriteString("------- end stack trace -------")
 	}
 
 	return sb.String()

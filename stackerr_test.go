@@ -44,7 +44,7 @@ func TestErrorf(t *testing.T) {
 
 func countStackTraceBlock(err error) int {
 	s := err.Error()
-	splited := strings.Split(s, "------- start stack trace -------")
+	splited := strings.Split(s, "------- stack trace -------")
 	if len(splited) == 0 {
 		return 0
 	}
