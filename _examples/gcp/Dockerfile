@@ -7,7 +7,7 @@ COPY ./ ./
 RUN apt-get update -y \
 	&& apt-get install ca-certificates -y \
   && update-ca-certificates \
-  && cd _example \
+  && cd _examples/gcp \
 	&& GO111MODULE=on CGO_ENABLED=0 go build -v -mod=readonly -o=/app/main main.go
 
 FROM debian:${OS} AS runtime
