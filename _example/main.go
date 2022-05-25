@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"github.com/mechiru/stackerr"
@@ -11,7 +12,7 @@ func main() {
 	err := inner1()
 	e := logEntry{
 		Severity: "ERROR",
-		Message:  err.Error(),
+		Message:  fmt.Sprintf("%+v", err),
 	}
 	json.NewEncoder(os.Stdout).Encode(e)
 }
