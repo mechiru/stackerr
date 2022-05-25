@@ -64,7 +64,7 @@ func (e *errorStack) Format(s fmt.State, v rune) {
 	switch v {
 	case 'v':
 		if s.Flag('+') {
-			io.WriteString(s, e.Error())
+			io.WriteString(s, e.Error()) //nolint:errcheck
 
 			var (
 				stack = e.stack
@@ -93,7 +93,7 @@ func (e *errorStack) Format(s fmt.State, v rune) {
 		}
 		fallthrough
 	case 's':
-		io.WriteString(s, e.Error())
+		io.WriteString(s, e.Error()) //nolint:errcheck
 	case 'q':
 		fmt.Fprintf(s, "%q", e.Error())
 	}
