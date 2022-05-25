@@ -1,0 +1,12 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: stackerr-example
+spec:
+  template:
+    spec:
+      containers:
+      - name: stackerr-example
+        image: mechiru/stackerr-example:v0.1.0
+        imagePullPolicy: Always
+      restartPolicy: OnFailure
