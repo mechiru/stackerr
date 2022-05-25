@@ -73,7 +73,7 @@ func (e *errorStack) Format(s fmt.State, v rune) {
 			for {
 				if len(stack) > 0 {
 					s.Write([]byte{'\n'})
-					s.Write(stack)
+					s.Write(bytes.TrimRight(stack, "\n"))
 					return
 				}
 
