@@ -56,13 +56,10 @@ func (e *errorStack) Error() string {
 	case e.err != nil:
 		msg = e.err.Error()
 	}
-	sb.WriteString(msg)
+	sb.WriteString(strings.TrimRight(msg, "\n"))
 
 	if len(e.stack) > 0 {
-		if msg[len(msg)-1] != '\n' {
-			sb.WriteByte('\n')
-		}
-		sb.WriteString("------- stack trace -------\n")
+		sb.WriteString("\n------- stack trace -------\n")
 		sb.Write(e.stack)
 	}
 
