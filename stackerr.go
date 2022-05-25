@@ -59,7 +59,7 @@ func (e *errorStack) Error() string {
 	sb.WriteString(strings.TrimRight(msg, "\n"))
 
 	if len(e.stack) > 0 {
-		sb.WriteString("\n------- stack trace -------\n")
+		sb.WriteByte('\n')
 		sb.Write(e.stack)
 	}
 
